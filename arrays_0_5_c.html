@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Titel</title>
+    <style>
+        .container {
+            position: relative;
+            display: block;
+            padding: 5px;
+            margin: 5px;
+            background: #eee;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+        }
+
+        .number {
+            position: relative;
+            display: inline-block;
+            padding: 2px;
+            margin: 2px;
+        }
+    </style>
+
+    <script src="dom.js"></script>
+    <script>
+        'use strict';
+
+        // VARIABLEN / KONSTANTEN
+        let myArray = [];
+        let num = 100, min = 100, max = 200, threshold = 150;
+
+        // FUNKTIONEN
+        const elements = {};
+
+        const createNumber = (min, max) => ~~(Math.random() * (max - min + 1) + min);
+
+        const createArray = (num, min, max) => [...new Array(num)].map(() => createNumber(min, max))
+
+        const domMapping = () => {
+            elements.rngThreshold = document.querySelector('#rngThreshold');
+            elements.txtThreshold = document.querySelector('#txtThreshold');
+            elements.output = document.querySelector('#output');
+
+            elements.rngThreshold.addEventListener('input', updateThreshold);
+            elements.txtThreshold.addEventListener('change', updateTxtThreshold);
+        }
+
+        const adjustInputs = () => {
+            elements.rngThreshold.min = min;
+            elements.rngThreshold.max = max;
+            elements.rngThreshold.value = threshold;
+        }
+
+        const updateThreshold = () => {
+            elements.txtThreshold.value = elements.rngThreshold.value;
+
+            elements.output.innerHTML = '';
+            renderArray(myArray);
+            renderLowpassArray(myArray, +elements.rngThreshold.value);
+
+        }
+        const updateTxtThreshold = () => {
+            elements.rngThreshold.value = elements.txtThreshold.value;
+            updateThreshold();
+        }
+
+        const renderArray = data => {
+            const container = dom.create(false, elements.output, 'div', ['container']);
+            data.forEach(value => dom.create(value, container, 'div', ['number']));
+        }
+
+        const renderLowpassArray = (data, threshold) => {
+            renderArray(data.filter(value => value < threshold));
+        }
+
+        const init = () => {
+
+            domMapping();
+            adjustInputs();
+
+            myArray = createArray(num, min, max);
+
+            updateThreshold();
+
+        }
+
+        document.addEventListener("DOMContentLoaded", init);
+
+    </script>
+</head>
+
+<body>
+    <div id="input">
+        <input type="range" id="rngThreshold" min="0" max="100" value="20" />
+        <input type="text" id="txtThreshold" />
+    </div>
+    <div id="output"></div>
+</body>
+
+</html>
